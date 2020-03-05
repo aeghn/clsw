@@ -1,0 +1,11 @@
+* Clsw
+A bash script for color switching, maybe more.
+
+* Preview
+[[https://raw.githubusercontent.com/aeghn/clsw/master/preview.gif]]
+
+* Intro
+I'm a little lazy now, you can get help by using =clsw -h= or read the sript code.
+Maybe I will make a detailed introduction in the future.
+
+Many file I used in color switching were not uploaded, but I think you can modify it to fit you.
