@@ -1,0 +1,187 @@
+#!/bin/bash
+
+###############################
+#
+# clsw mode -- dark
+# Applist: emacs, i3wm rofi, dunst, alacritty. termite, 
+#
+###############################
+
+# BASECOLORS
+# These for dark to light
+COLOR00=#050505 
+COLOR01=#171717  # BACKGROUND OF I3_UNFOCUSED TITLE
+COLOR02=#282828  # COMMON BACKGROUND, FOR ALACRITTY, EMACS, GTK THEME, I3BAR
+COLOR03=#393939  # BACKGROUND OF I3_FOCUSED_INACTIVE TITLE, TERMITE, ROFI
+COLOR04=#4A4A4A  # BACKGROUND OF NOTIFICATION, I3 FOCUSED TITLE
+COLOR05=#595959  
+COLOR06=#656565
+COLOR07=#767676
+COLOR08=#868686
+COLOR09=#9A9A9A
+COLOR0A=#A9A9A9
+COLOR0B=#BDBDBD
+COLOR0C=#CACACA
+COLOR0D=#D8D8D8  # COMMON FOREGROUND
+COLOR0E=#E6E6E6
+COLOR0F=#F8F8F8
+
+# These for highlight colors
+BLACK=#000000
+BLUE=#22AAFF
+CYAN=#66FFFF
+GREEN=#00DD44
+MAGENTA=#DD33CC
+ORANGE=#FF9966
+PURPLE=#9944EE
+RED=#EE1111
+WHITE=#FFFFFF
+YELLOW=#FFCC55
+
+
+# ACCENT color
+ACCENT=#4169e1
+
+## GTK and icon themes
+THEMES_GTK=(
+	"Net/ThemeName|Numix"
+	"Net/IconThemeName|Stein-Nior"
+)
+
+VARS_QT5CT=(
+	"icon_theme|Stein-Nior"
+)
+
+THEMES_FCITX=(
+	"SkinType|material-dark"
+)
+
+## i3 colors
+### class               border          backgr.     text.        indic.         child_border
+COLORS_I3=(
+"client.focused| 	        $COLOR05      $COLOR04     $COLOR0F     $COLOR05       $COLOR08"
+"client.focused_inactive|	$COLOR04      $COLOR03     $COLOR0C     $COLOR04       $COLOR05"
+"client.unfocused|	        $COLOR03      $COLOR02     $COLOR0A     $COLOR03       $COLOR04"
+"inactive_workspace|       $COLOR02      $COLOR02     $COLOR0E"
+"background| $COLOR02"
+"statusline| $COLOR0F"
+)
+
+## dunst colors
+COLORS_DUNST=(
+	"background|$COLOR04"
+	"foreground|$COLOR0F"
+	"frame_color|$COLOR06"
+)
+
+
+## Termite
+COLORS_TERMITE=(
+	"foreground|$COLOR0D"
+	"foreground_bold|$COLOR0F"
+	"cursor|$COLOR0F"
+	"background|$COLOR02"
+	"color0|$BLACK"
+	"color1|$RED"
+	"color2|$GREEN"
+	"color3|$YELLOW"
+	"color4|$BLUE"
+	"color5|$MAGENTA"
+	"color6|$CYAN"
+	"color7|$WHITE"
+	"color8|$BLACK"
+	"color9|$RED"
+	"color10|$GREEN"
+	"color11|$YELLOW"
+	"color12|$BLUE"
+	"color13|$MAGENTA"
+	"color14|$CYAN"
+	"color15|$WHITE"
+)
+
+## Rofi
+COLORS_ROFI=(
+	"cborder|$COLOR03"
+	"cbackground|$COLOR02"
+	"cbackground-alt|$COLOR03"
+	"cforeground|$COLOR0E"
+	"cinputbar|$COLOR04"
+	"cprompt|$YELLOW"
+	"caccent|$ACCENT"
+)
+
+## EMACS
+EMACS_THEME=(
+	"load-theme|stein"
+)
+COLORS_EMACS=(
+                "stein-bg      |$COLOR02"
+                "stein-current |$COLOR05"
+                "stein-fg      |$COLOR0D"
+                "stein-comment |$COLOR08"
+                "stein-cyan    |$CYAN"
+                "stein-green   |$GREEN"
+                "stein-orange  |$ORANGE"
+                "stein-magenta |$MAGENTA"
+                "stein-purple  |$PURPLE"
+                "stein-red     |$RED"
+                "stein-yellow  |$YELLOW"
+                "stein-blue    |$BLUE"
+				"bg0            |$COLOR01"
+                "bg2            |$COLOR03"
+                "bg3            |$COLOR04"
+                "fg0            |$COLOR0C"
+                "fg2            |$COLOR0E"
+                "fg3            |$COLOR0F"
+)
+
+## fcitx
+FCITX_THEME=(
+	"SkinType|material-dark"
+)
+
+# copyq
+COLORS_COPYQ=(
+	"alt_bg|$COLOR03"
+	"bg|$COLOR02"
+	"edit_fg|$COLOR0E"
+	"fg|$COLOR0E"
+	"find_fg|$COLOR0F"
+	"notes_fg|$COLOR0E"
+	"num_fg|$COLOR0D"
+	"sel_bg|$BLUE"
+	"sel_fg|$COLOR0F"
+)
+
+## alacritty
+COLORS_ALACRITTY=(
+	"foreground|$COLOR0D"
+	"background|$COLOR02"
+	"black|$BLACK"
+	"red|$RED"
+	"green|$GREEN"
+	"yellow|$YELLOW"
+	"blue|$BLUE"
+	"magenta|$MAGENTA"
+	"cyan|$CYAN"
+	"white|$WHITE"
+)
+
+
+## qutebrowser
+COLORS_QUTEBROWSER=(
+	"background|$COLOR02"
+	"background-alt|$COLOR01"
+	"background-attention|$COLOR04"
+	"foreground|$COLOR0D"
+	"foreground-alt|$COLOR0E"
+	"foreground-attention|$COLOR0F"
+	"accent|$ACCENT"
+	"foreground-accent|$COLOR0F"
+	"green|$GREEN"
+	"red|$RED"
+	"yellow|$YELLOW"
+)
+STYLESHEETS_QUTE=(
+    "c.content.user_stylesheets|dark.css"
+)

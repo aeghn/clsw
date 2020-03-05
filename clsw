@@ -1,0 +1,313 @@
+#!/bin/bash
+
+# clsw -- A script for color switching (light and dark mode)
+# Author: aeghn
+set -u
+
+## All values are here: "qutebrowser"  "wall" "i3" "termite" "emacs" "GTK" "qt5ct" "rofi" "fcitx" "copyq"  "dunst"
+APPLIST=("copyq" "dunst" "emacs" "fcitx" "GTK" "i3" "other" "qt5ct" "qutebrowser"  "rofi" "termite" "alacritty")
+
+# DIRS
+TEMPLATE_DIR="$HOME/.scripts/data/clsw"
+
+## TIME
+STARTDAY=7
+STARTNIGHT=19
+
+# extra option
+LAG=0.05
+
+SILENT=0
+
+# Create backup (<name>.clsw.bak)
+BACKUP=1
+
+## Functions
+replace() {
+    local file key val part0 part2 k item length items_name
+    local -a missing_items part1 sed_args grep_args pre_rlt aft_rlt items
+    file="$1"
+    items_name="$2"
+    key="$3"
+    val="$4"
+
+    check_file "$file"
+
+    eval items=( \"\${$items_name[@]}\" )
+    length=${#items[@]}
+
+    local IFS="|"
+    for((i=0; i<$length; i++ )); do
+        item=( ${items[$i]} )
+        part0="${key%foo0*}${item[0]}${key#*foo0}"
+        part1[$i]="${part0#^}"
+        part1[$i]="${part1[$i]#\\}"
+        part2="${val%foo1*}${item[1]}${val#*foo1}"
+        k=$((i*2))
+        grep_args[$k]=-e
+        sed_args[$k]=-e
+        grep_args[$((++k))]="$part0"
+        sed_args[$k]="s~$part0.*~${part1[$i]}$part2~g"
+    done
+
+    local IFS=$'\n'
+    pre_rlt=(`grep -E -n  ${grep_args[@]} "$file"`)
+    for i in ${part1[@]}; do
+        if ! [[ "${pre_rlt[@]}" =~ "$i" ]]; then
+            missing_items=( ${missing_items[@]} "$i" )
+        fi
+    done
+
+    if [ -v missing_items ]; then
+        printf "\033[31m! These items do not exist in $file:\033[0m\n"
+        printf " %s\n" "${missing_items[@]@Q}"
+        exit
+    fi
+
+    sed -i -r ${sed_args[@]} "$file"
+
+    post_rlt=(`grep -E -n ${grep_args[@]} "$file"`)
+
+    for i in ${!pre_rlt[@]};do
+        [ $SILENT -ne 1 ] &&  sleep $LAG
+        if [ "${pre_rlt[$i]}" = "${post_rlt[$i]}" ]; then
+            [ $SILENT -ne 1 ] && echo -e " = \033[34m ${post_rlt[$i]}\033[0m%"
+        else
+            RELOAD_FLAG=1
+            [ $SILENT -ne 1 ] && echo -e " + \033[32m ${post_rlt[$i]}\033[0m\$\n - \033[31m ${pre_rlt[$i]}\033[0m%"
+        fi
+    done
+}
+
+check_file() {
+    local file="$1"
+    local backup="$file.clsw.bak"
+
+    if [ ! -f "$file" ]; then
+        echo -e "\033[31m! \033[0m$file"
+        exit
+    else
+        [ $SILENT -ne 1 ] && echo -e "> Current file   : $file"
+        if [ $BACKUP -eq 1 ]; then
+            if [ -f "$backup" ]; then
+                [ $SILENT -ne 1 ] && echo -e "> Backup exists  : $backup"
+            else
+                [ $SILENT -ne 1 ] && echo -e "> Creating backup: $backup"
+                cp "$file" "$backup"
+            fi
+        fi
+    fi
+}
+
+switch() {
+    local template_file="$TEMPLATE_DIR/mode_${MODE}"
+	
+    source "$template_file"
+	
+    echo "${MODE}" > "$HOME/.cache/clsw_mode"
+	
+    for i in ${APPLIST[@]};do
+        if [[ $SILENT -eq 0 ]]; then
+            echo -e "\n**************************************"
+            figlet "  $i" || echo "> $i"
+        fi
+        RELOAD_FLAG=0
+        eval "${i}Switch"
+    done
+}
+
+## schemes for apps
+alacrittySwitch(){
+    local CONFIG_ALACRITTY="$HOME/.config/alacritty/alacritty.yml"
+	
+    replace "$CONFIG_ALACRITTY" "COLORS_ALACRITTY" "foo0:" " 'foo1'"
+}
+
+copyqSwitch(){
+    local CONFIG_COPYQ_THEME="$HOME/.config/copyq/themes/default.ini"
+	
+    replace "$CONFIG_COPYQ_THEME" "COLORS_COPYQ" "^foo0=" "foo1"
+	
+    if [ $RELOAD_FLAG -ne 0 ];then
+        copyq loadTheme "$CONFIG_COPYQ_THEME" &
+    fi
+}
+
+dunstSwitch() {
+    local CONFIG_DUNST="$HOME/.config/dunst/dunstrc"
+	
+    replace "$CONFIG_DUNST" "COLORS_DUNST" "foo0=" "\"foo1\""
+	
+    if [ $RELOAD_FLAG -ne 0 ]; then
+        pkill dunst
+    fi
+}
+
+emacsSwitch(){
+    shopt -s direxpand
+    local CONFIG_EMACS_LD="$HOME/.emacs.d/core/init-ui.el"
+    local CONFIG_EMACS_THEME="$HOME/.emacs.d/lib/themes/stein-theme.el"
+	
+    replace "$CONFIG_EMACS_THEME" "COLORS_EMACS" '\(foo0' "\"foo1\")"
+	
+    replace "$CONFIG_EMACS_LD" "EMACS_THEME" "foo0 " "'foo1 t)"
+	
+    if [ $RELOAD_FLAG -ne 0 ] && emacsclient -e nil &> /dev/null ;then
+        emacsclient --eval "(load \"$CONFIG_EMACS_LD\" )" >/dev/null &
+        emacsclient --socket-name=chinbox --eval "(load \"$CONFIG_EMACS_LD\" )" >/dev/null &
+    fi
+}
+
+fcitxSwitch() {
+    local CONFIG_FCITX="$HOME/.config/fcitx/conf/fcitx-classic-ui.config"
+
+    replace "$CONFIG_FCITX" "THEMES_FCITX" "foo0=" "foo1"
+
+    if [ $RELOAD_FLAG -ne 0 ]; then
+        fcitx-remote -r >/dev/null 2>&1 &
+    fi
+}
+
+GTKSwitch() {
+    local CONFIG_GTK="$HOME/.xsettingsd"
+
+    replace "$CONFIG_GTK" "THEMES_GTK" "foo0 " "\"foo1\""
+
+    if [ $RELOAD_FLAG -ne 0 ] ;then
+        xsettingsd > /dev/null 2>&1 &
+    fi
+}
+
+i3Switch() {
+    local CONFIG_I3="$HOME/.config/i3/config"
+
+    replace "$CONFIG_I3"  "COLORS_I3" "foo0 " "foo1"
+
+    if [ $RELOAD_FLAG -ne 0 ];then
+        i3-msg reload 2>&1 >/dev/null &
+    fi
+}
+
+otherSwitch(){
+    ~/.scripts/dewall $MODE > /dev/null
+    #~/repos/Stein/Icons/special/sh/rime.sh
+    #~/repos/Stein/Icons/special/sh/telegram.sh
+}
+
+
+qutebrowserSwitch(){
+    local THEME_QUTE="$HOME/.config/qutebrowser/theme.py"
+
+    replace "$THEME_QUTE" "COLORS_QUTEBROWSER" "'foo0':" "'foo1',"
+    replace "$THEME_QUTE" "STYLESHEETS_QUTE" "foo0 =" " \"foo1\""
+
+    if [ $RELOAD_FLAG -ne 0 ] && pgrep qutebrowser > /dev/null; then
+        qutebrowser ":config-source theme.py"&> /dev/null &
+    fi
+}
+
+qt5ctSwitch(){
+    local CONFIG_QT5CT="$HOME/.config/qt5ct/qt5ct.conf"
+
+    replace "$CONFIG_QT5CT" "VARS_QT5CT" "foo0=" "foo1"
+}
+
+rofiSwitch() {
+    local CONFIG_ROFI="$HOME/.config/rofi/new.rasi"
+
+    replace "$CONFIG_ROFI"  "COLORS_ROFI" "foo0:" "foo1;"
+}
+
+termiteSwitch() {
+    local CONFIG_TERMITE="$HOME/.config/termite/config"
+
+    replace "$CONFIG_TERMITE" "COLORS_TERMITE" "foo0=" "foo1"
+
+    if [ $RELOAD_FLAG -ne 0 ] && pgrep termite > /dev/null; then
+        killall -USR1 termite &
+    fi
+}
+
+# Misc
+nocnoc() {
+	notify-send -i $HOME/.scripts/res/icons/${MODE}.png "Clsw" "$MODE mode now."
+}
+
+show_help() {
+	cat <<EOF
+clsw: color switch, maybe more.
+	 -a APP_NAME -- Only change this app's configuration.		
+	 -A 		 -- Show apps in the switch list.
+	 -b 		 -- Create backup if there is no FILE.clsw.bak.
+	 -d/--dark   -- Use dark mode.
+	 -l/--light  -- Use light mode.
+	 -m 		 -- Specifying the mode name manually.
+	 -s 		 -- Make clsw quiet.
+Currently this script supports i3wm, termite, Alacritty and copyq out of box.
+Other apps you need to modify this script or the mode files.
+EOF
+}
+
+main() {
+    local hour=$(date +%H)
+
+    if [ "$#" -gt 0 ]; then
+        if [ $1 = "l" ];then
+            MODE="light"
+        elif [ $1 = "d" ];then
+            MODE="dark"
+        else
+            while [[ "$#" -gt 0 ]]; do
+                case "$1" in
+                    -l|--light) MODE=light ;;
+                    -d|--dark) MODE=dark ;;
+                    -b) BACKUP=1 ;;
+                    -A) SHOW_APPS=1 ;;
+					-s) SILENT=1 ;;
+                    -m|--mode)
+                        MODE="$2"
+                        shift
+                        ;;
+                    -a)
+                        APPLIST=("$2")
+                        shift
+                        ;;
+					-h)
+						show_help
+						exit
+						;;
+                    *)
+                        echo "unknown option $1"
+						show_help
+                        exit 2
+                        ;;
+                esac
+                shift
+            done
+        fi
+    fi
+
+    if [ -v MODE ]; then
+		template_file="$TEMPLATE_DIR/mode_$MODE"
+		if [ ! -f "$template_file" ]; then
+			echo -e "! There are no template file called \`mode_$MODE\` in $TEMPLATE_DIR/"
+			exit 2
+		fi
+		
+	else
+        if [ $hour -lt $STARTNIGHT ] && [ $hour -gt $STARTDAY ];then
+            MODE="light"
+        else
+            MODE="dark"
+        fi
+    fi
+
+    [ -v SHOW_APPS ] && [ $SHOW_APPS -eq 1 ] && echo -e "> These apps are going to switch themes:\n\t${APPLIST[@]}" && exit
+
+    switch $MODE
+
+    [ $SILENT -eq 0 ] && nocnoc
+}
+
+main $@
+~/.scripts/keychg &> /dev/null
