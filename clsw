@@ -8,7 +8,7 @@ set -u
 APPLIST=("copyq" "dunst" "emacs" "fcitx" "GTK" "i3" "other" "qt5ct" "qutebrowser"  "rofi" "termite" "alacritty")
 
 # DIRS
-TEMPLATE_DIR="$HOME/.scripts/data/clsw"
+TEMPLATE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 ## TIME
 STARTDAY=7
