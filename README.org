@@ -5,7 +5,13 @@ A bash script for color switching, maybe more.
 [[https://raw.githubusercontent.com/aeghn/clsw/master/preview.gif]]
 
 * Intro
-I'm a little lazy now, you can get help by using =clsw -h= or read the sript code.
+I'm a little lazy now, you can get help by using =clsw -h= or read the script code.
 Maybe I will make a detailed introduction in the future.
 
 Many file I used in color switching were not uploaded, but I think you can modify it to fit you.
+
+* Add new apps
+  - Find the lines you need to modify and the key string.
+  - Google how to reload that app's configuration on the fly.
+    I have add some apps like copyq, dunst, emacs, fcitx, GTK, i3, other, qt5ct, qutebrowser, rofi, termite, alacritty.
+  - Add them into script and mode file.
