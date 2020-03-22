@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # clsw -- A script for color switching (light and dark mode)
 # Author: aeghn
