@@ -33,6 +33,8 @@ replace() {
 
     check_file "$file"
 
+    RELOAD_FLAG=0
+
     eval items=( \"\${$items_name[@]}\" )
     length=${#items[@]}
 
@@ -111,7 +113,6 @@ switch() {
             echo -e "\n**************************************"
             figlet "  $i" || echo "> $i"
         fi
-        RELOAD_FLAG=0
         eval "${i}Switch"
     done
 }
@@ -310,4 +311,3 @@ main() {
 }
 
 main $@
-~/.scripts/keychg &> /dev/null
